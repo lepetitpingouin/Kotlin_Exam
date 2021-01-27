@@ -9,10 +9,15 @@ import java.io.Serializable
 data class SearchCompany(
     @PrimaryKey(autoGenerate = true) var id: Long? = null,
     var search: String = "",
-    var departement: Int = 0
+    var departement: Int = 0,
+    var siret: Long = 0
 ) : Serializable {
     override fun toString(): String {
-        return "$search - $departement"
+        if(departement == 0){
+            return "$search - département inconnue"
+        }else{
+            return "$search - $departement"
+        }
     }
 
     override fun equals(other: Any?): Boolean {

@@ -10,10 +10,10 @@ interface CompanyDAO {
     @Query("SELECT COUNT(*) FROM Company")
     fun getCountCompany(): Int
 
-    @Query("SELECT * FROM Company ORDER BY siren  LIMIT 1 OFFSET :position")
+    @Query("SELECT * FROM Company ORDER BY siret  LIMIT 1 OFFSET :position")
     fun getByPosition(position: Int): Company?
 
-    @Query("SELECT * FROM Company  WHERE id_search_company = :id_search ORDER BY siren, company_name LIMIT 1 OFFSET :position")
+    @Query("SELECT * FROM Company  WHERE id_search_company = :id_search ORDER BY siret, company_name LIMIT 1 OFFSET :position")
     fun getCompanyByPositionSearch(id_search: Long, position: Int): Company?
 
     @Insert

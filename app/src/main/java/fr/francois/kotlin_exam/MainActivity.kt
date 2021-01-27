@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             val editQuery = findViewById<EditText>(R.id.edit_query).text.toString()
             QueryCompanyTask(svc, list).execute(editQuery)
         }
+
         list.setOnItemClickListener { parent, view, position, id ->
             val search = list.getItemAtPosition(position) as SearchCompany
             intent = Intent(this,CompanyActivity::class.java)

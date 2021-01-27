@@ -22,7 +22,7 @@ abstract class SearchCompanyDatabase : RoomDatabase() {
                     val company = Company(
                         id_search_company = idCompany,
                         company_name = "esimed",
-                        siren = 4428243026,
+                        siret = 4428243026,
                         created_date = "20000101",
                         company_category = "PME"
                     )

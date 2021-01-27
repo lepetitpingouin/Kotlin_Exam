@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">Kotlin_Exam</string>
     <string name="label_query">Rechercher une entreprise</string>
+    <string name="company_name">%s</string>
+    <string name="siret">N° Siret : %s</string>
+    <string name="created_date">Date de création : %s</string>
+    <string name="company_category">Type d\'entreprise : %s</string>
+    <string name="nature_juridique">Nature juridique : %s</string>
+    <string name="geo_adresse">Adresse : %s</string>
 </resources>

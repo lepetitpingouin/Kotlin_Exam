@@ -28,8 +28,9 @@ class CompanyService {
             val inputStream = connection.inputStream ?: return emptyList()
             val reader = JsonReader(inputStream.bufferedReader())
 
-            val listLocation = mutableListOf<SearchCompany>()
+            val listCompany = mutableListOf<SearchCompany>()
             reader.beginObject()
+
             while (reader.hasNext()) {
                 if (reader.nextName() == "etablissement") {
                     reader.beginArray()
@@ -46,11 +47,12 @@ class CompanyService {
                                         searchCompany.departement = reader.nextInt()
                                     }
                                 }
+                                "siret" -> searchCompany.siret = reader.nextLong()
                                 else -> reader.skipValue()
                             }
                         }
                         reader.endObject()
-                        listLocation.add(searchCompany)
+                        listCompany.add(searchCompany)
                     }
 
                     reader.endArray()
@@ -59,7 +61,7 @@ class CompanyService {
                 }
             }
             reader.endObject()
-            return listLocation
+            return listCompany
         } catch (e: IOException) {
             return emptyList()
         } finally {
@@ -67,8 +69,11 @@ class CompanyService {
         }
     }
 
-    fun getCompany(query: String): List<Company> {
-        val url = URL(String.format(queryUrl, query))
+    fun getCompany(query: SearchCompany): Company? {
+        val querySiret = query.siret
+        val queryCompanyUrl = "$apiUrl/api/sirene/v1/siret/$querySiret"
+
+        val url = URL(String.format(queryCompanyUrl, query))
         var connection: HttpsURLConnection? = null
 
         try {
@@ -76,37 +81,72 @@ class CompanyService {
             connection.connect()
             val code = connection.responseCode
             if (code != HttpsURLConnection.HTTP_OK) {
-                return emptyList()
+                return Company()
             }
-            val inputStream = connection.inputStream ?: return emptyList()
+            val inputStream = connection.inputStream ?: return Company()
             val reader = JsonReader(inputStream.bufferedReader())
-            val results = mutableListOf<Company>()
+            val results = Company()
 
             reader.beginObject()
-            reader.beginArray()
             while (reader.hasNext()) {
-                val company = Company()
-                reader.beginObject()
-                while (reader.hasNext()) {
-                    when (reader.nextName()) {
-                        "siren" -> company.siren = reader.nextInt().toLong()
-                        "enseigne" -> company.company_name = reader.nextString()
-                        "geo_adresse" -> company.geo_adresse = reader.nextString()
-                        "libelle_activite_principale" -> company.company_category =
-                            reader.nextString()
-                        "libelle_nature_juridique_entreprise" -> company.nature_juridique =
-                            reader.nextString()
-                        else -> reader.skipValue()
+                if (reader.nextName() == "etablissement") {
+                    reader.beginObject()
+                    while (reader.hasNext()) {
+                        when (reader.nextName()) {
+                            "siret" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.siret = reader.nextString().toLong()
+                                }
+                            }
+
+                            "nom_raison_sociale" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.company_name = reader.nextString()
+                                }
+                            }
+
+                            "geo_adresse" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.geo_adresse = reader.nextString()
+                                }
+                            }
+                            "libelle_activite_principale" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.company_category = reader.nextString()
+                                }
+                            }
+                            "libelle_nature_juridique_entreprise" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.nature_juridique = reader.nextString()
+                                }
+                            }
+
+                            "date_creation_entreprise" -> {
+                                if (reader.peek() == JsonToken.NULL) {
+                                    reader.nextNull()
+                                } else {
+                                    results.created_date = reader.nextString()
+                                }
+                            }
+                            else -> reader.skipValue()
+                        }
                     }
                 }
-                reader.endObject()
-                results.add(company)
             }
-            reader.endArray()
             reader.endObject()
             return results
         } catch (e: IOException) {
-            return emptyList()
+            return null
         } finally {
             connection?.disconnect()
         }
