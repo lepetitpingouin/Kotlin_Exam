@@ -8,18 +8,8 @@ import java.io.Serializable
 @Entity
 data class SearchCompany(
     @PrimaryKey(autoGenerate = true) var id: Long? = null,
-    var search: String = "",
-    var departement: Int = 0,
-    var siret: Long = 0
+    var search: String = ""
 ) : Serializable {
-    override fun toString(): String {
-        if(departement == 0){
-            return "$search - département inconnue"
-        }else{
-            return "$search - $departement"
-        }
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
@@ -41,6 +31,4 @@ data class SearchCompany(
     override fun hashCode(): Int {
         return id?.hashCode() ?: 0
     }
-
-
 }

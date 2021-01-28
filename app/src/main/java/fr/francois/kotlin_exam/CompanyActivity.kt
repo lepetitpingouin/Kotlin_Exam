@@ -9,14 +9,27 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import fr.francois.kotlin_exam.data.Company
 import fr.francois.kotlin_exam.data.SearchCompany
+import fr.francois.kotlin_exam.data.SearchCompanyDatabase
 
 
 class CompanyActivity : AppCompatActivity() {
+
     inner class QueryCompanyTask(
         private val service: CompanyService,
         private val layout: LinearLayout
-    ) : AsyncTask<SearchCompany, Void, Company>() {
+    ) : AsyncTask<Long, Void, Company>() {
         private val dlg = Dialog(this@CompanyActivity)
+
+        fun formatDateFr(date: String):String
+        {
+            val year: String = date.substring(0,4)
+            val month: String = date.substring(4,6)
+            val day: String = date.substring(6,8)
+            var dateformat: String=""
+
+            dateformat="$day/$month/$year"
+            return  dateformat
+        }
 
         override fun onPreExecute() {
             layout.visibility = View.INVISIBLE
@@ -28,7 +41,7 @@ class CompanyActivity : AppCompatActivity() {
             dlg.show()
         }
 
-        override fun doInBackground(vararg params: SearchCompany?): Company? {
+        override fun doInBackground(vararg params: Long?): Company? {
             val query = params[0] ?: return null
             return service.getCompany(query)
         }
@@ -51,11 +64,15 @@ class CompanyActivity : AppCompatActivity() {
             }
 
             if (result?.created_date == null || result?.created_date == "") {
+
                 layout.findViewById<TextView>(R.id.created_date).text =
                     String.format(getString(R.string.created_date), "Inconnue")
             } else {
+                val date = result?.created_date
+                val format = formatDateFr(date.toString())
+
                 layout.findViewById<TextView>(R.id.created_date).text =
-                    String.format(getString(R.string.created_date), result?.created_date)
+                    String.format(getString(R.string.created_date), format)
             }
 
             if (result?.company_category == null || result?.company_category == "") {
@@ -93,10 +110,16 @@ class CompanyActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.company)
 
-        val svc = CompanyService()
-        val search = intent.getSerializableExtra("Entreprise") as SearchCompany
+        val db = SearchCompanyDatabase.getDatabase(this)
+        val searchDAO = db.searchCompanyDAO()
+        val companyDAO = db.companyDAO()
+        val liaisonDAO = db.liaisonDAO()
+
+        val svc = CompanyService(searchDAO,companyDAO,liaisonDAO)
+
+        val company = intent.getSerializableExtra("Entreprise") as Long
 
         val layout = findViewById<LinearLayout>(R.id.layout_company)
-        QueryCompanyTask(svc, layout).execute(search)
+        QueryCompanyTask(svc, layout).execute(company)
     }
 }

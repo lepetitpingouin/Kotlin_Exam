@@ -6,11 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.text.ParseException
 
-@Database(entities = [SearchCompany::class, Company::class], version = 2)
+@Database(entities = [SearchCompany::class, Company::class, Liaison::class], version = 2)
 
 abstract class SearchCompanyDatabase : RoomDatabase() {
     abstract fun searchCompanyDAO(): SearchCompanyDAO
     abstract fun companyDAO(): CompanyDAO
+    abstract fun liaisonDAO(): LiaisonDAO
 
     fun seed() {
         try {
@@ -20,7 +21,6 @@ abstract class SearchCompanyDatabase : RoomDatabase() {
 
                 if (companyDAO().getCountCompany() == 0) {
                     val company = Company(
-                        id_search_company = idCompany,
                         company_name = "esimed",
                         siret = 4428243026,
                         created_date = "20000101",
